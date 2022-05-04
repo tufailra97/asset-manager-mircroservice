@@ -1,7 +1,13 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
-import { apiLambdaWrapper, apiResponse, logger } from '../../helpers';
+import {
+  apiLambdaWrapper,
+  apiResponse,
+  logger,
+  stackEnvVariables
+} from '../../helpers';
 import { CreatePresignedUrlEventBody } from '../../interfaces';
+import { s3Service } from '../../services';
 import { eventBodySchema } from './schemas/event-body';
 
 const createPresignedUrl = async (
@@ -11,15 +17,35 @@ const createPresignedUrl = async (
     (event.body && (JSON.parse(event.body) as CreatePresignedUrlEventBody)) ||
     {};
 
-  logger.info('key', key);
+  try {
+    logger.info({
+      message: 'Creating presigned url',
+      params: { key, fileSize }
+    });
 
-  return apiResponse(200, {
-    message: 'Hello world',
-    input: {
-      key,
-      fileSize
-    }
-  });
+    const data = s3Service.createPresignedPost({
+      Bucket: stackEnvVariables.BUCKET_NAME,
+      Expires: stackEnvVariables.PRESIGNED_URL_LIFETIME,
+      Conditions: [
+        ['content-length-range', 1, stackEnvVariables.FILE_MAX_SIZE]
+      ],
+      Fields: {
+        key
+      }
+    });
+
+    return apiResponse(200, {
+      data
+    });
+  } catch (error) {
+    logger.error({
+      message: 'Error creating presigned url.',
+      error
+    });
+    return apiResponse(500, {
+      message: 'Internal server error.'
+    });
+  }
 };
 
 export const handler = apiLambdaWrapper(createPresignedUrl, {

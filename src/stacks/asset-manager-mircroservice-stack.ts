@@ -9,6 +9,7 @@ import {
 } from 'aws-cdk-lib';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { HttpMethods } from 'aws-cdk-lib/aws-s3';
 import { Construct } from 'constructs';
 import * as path from 'path';
 
@@ -27,8 +28,6 @@ export class AssetManagerMircroserviceStack extends Stack {
   ) {
     super(scope, id, props);
 
-    console.log({ props });
-
     if (!props || !Object.keys(props).length) {
       throw new Error('Missing props');
     }
@@ -39,7 +38,14 @@ export class AssetManagerMircroserviceStack extends Stack {
       {
         bucketName: `asset-manager-bucket-${props.stage}`,
         accessControl: aws_s3.BucketAccessControl.PRIVATE,
-        publicReadAccess: false
+        publicReadAccess: false,
+        cors: [
+          {
+            allowedMethods: [HttpMethods.POST],
+            allowedOrigins: ['*'],
+            allowedHeaders: ['*']
+          }
+        ]
       }
     );
 
@@ -76,7 +82,11 @@ export class AssetManagerMircroserviceStack extends Stack {
       `asset-manager-api-${props.stage}`,
       {
         restApiName: `Asset Manager API - ${props.stage.toUpperCase()}`,
-        description: 'Asset Manager API'
+        defaultCorsPreflightOptions: {
+          allowOrigins: aws_apigateway.Cors.ALL_ORIGINS,
+          allowMethods: aws_apigateway.Cors.ALL_METHODS,
+          allowHeaders: aws_apigateway.Cors.DEFAULT_HEADERS
+        }
       }
     );
 

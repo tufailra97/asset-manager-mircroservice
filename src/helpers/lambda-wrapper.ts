@@ -41,7 +41,10 @@ export const apiLambdaWrapper =
       });
 
       try {
-        const errors = await schemaValidator(options.validationSchema, body);
+        const errors = await schemaValidator(options.validationSchema, body, {
+          abortEarly: false,
+          stripUnknown: true
+        });
 
         if (errors) {
           return apiResponse(400, {

@@ -36,10 +36,10 @@
   },
   "dependencies": {
     "aws-cdk-lib": "2.21.1",
+    "aws-sdk": "^2.1127.0",
     "constructs": "^10.0.0",
     "dotenv": "^16.0.0",
     "joi": "^17.6.0",
-    "pino-pretty": "^7.6.1",
     "source-map-support": "^0.5.16",
     "winston": "^3.7.2"
   }
