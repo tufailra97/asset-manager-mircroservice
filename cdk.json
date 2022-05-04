@@ -15,7 +15,6 @@
       ".prettierrc"
     ]
   },
-  "profile": "profile",
   "context": {
     "@aws-cdk/aws-apigateway:usagePlanKeyOrderInsensitiveId": true,
     "@aws-cdk/core:stackRelativeExports": true,

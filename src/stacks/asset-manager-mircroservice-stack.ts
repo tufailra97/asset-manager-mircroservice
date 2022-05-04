@@ -27,6 +27,8 @@ export class AssetManagerMircroserviceStack extends Stack {
   ) {
     super(scope, id, props);
 
+    console.log({ props });
+
     if (!props || !Object.keys(props).length) {
       throw new Error('Missing props');
     }
@@ -35,6 +37,7 @@ export class AssetManagerMircroserviceStack extends Stack {
       this,
       `asset-manager-bucket-${props.stage}`,
       {
+        bucketName: `asset-manager-bucket-${props.stage}`,
         accessControl: aws_s3.BucketAccessControl.PRIVATE,
         publicReadAccess: false
       }
@@ -49,6 +52,7 @@ export class AssetManagerMircroserviceStack extends Stack {
       this,
       `get-presigned-url-${props.stage}`,
       {
+        functionName: `get-presigned-url-${props.stage}`,
         runtime: Runtime.NODEJS_14_X,
         entry: path.join(
           __dirname,
@@ -59,7 +63,8 @@ export class AssetManagerMircroserviceStack extends Stack {
         environment: {
           BUCKET_NAME: bucket.bucketName,
           PRESIGNED_URL_LIFETIME: props.presignedUrlLifeTime,
-          FILE_MAX_SIZE: props.fileMaxSizeInBytes
+          FILE_MAX_SIZE: props.fileMaxSizeInBytes,
+          LOG_ENABLED: props.logsEnabled ? 'true' : 'false'
         },
         logRetention: RetentionDays.ONE_DAY,
         initialPolicy: [lambdaS3PutObject]
@@ -70,7 +75,7 @@ export class AssetManagerMircroserviceStack extends Stack {
       this,
       `asset-manager-api-${props.stage}`,
       {
-        restApiName: 'Asset Manager API',
+        restApiName: `Asset Manager API - ${props.stage.toUpperCase()}`,
         description: 'Asset Manager API'
       }
     );

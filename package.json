@@ -12,7 +12,6 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk",
     "format": "prettier --write \"lib/**/*.ts\" \"test/**/*.ts\"",
     "lint": "eslint 'src/**/*.ts'",
     "bootstrap": "cdk bootstrap",
@@ -36,9 +35,12 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@middy/core": "^2.5.7",
     "aws-cdk-lib": "2.21.1",
     "constructs": "^10.0.0",
-    "source-map-support": "^0.5.16"
+    "dotenv": "^16.0.0",
+    "joi": "^17.6.0",
+    "pino-pretty": "^7.6.1",
+    "source-map-support": "^0.5.16",
+    "winston": "^3.7.2"
   }
 }
