@@ -8,7 +8,7 @@ import {
 } from '../../helpers';
 import { CreatePresignedUrlEventBody } from '../../interfaces';
 import { s3Service } from '../../services';
-import { eventBodySchema } from './schemas/event-body';
+import { createPreSignedUrl } from './schemas/create-presigned-url-body';
 
 const createPresignedUrl = async (
   event: APIGatewayProxyEvent
@@ -50,5 +50,5 @@ const createPresignedUrl = async (
 
 export const handler = apiLambdaWrapper(createPresignedUrl, {
   handlerName: 'create-presigned-url',
-  validationSchema: eventBodySchema
+  validationSchema: createPreSignedUrl
 });

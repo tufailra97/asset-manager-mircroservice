@@ -2,7 +2,7 @@ import Joi from 'joi';
 
 import { stackEnvVariables } from '../../../helpers/stack-env-variables';
 
-export const eventBodySchema = Joi.object({
+export const createPreSignedUrl = Joi.object({
   fileSize: Joi.number()
     .integer()
     .min(1)

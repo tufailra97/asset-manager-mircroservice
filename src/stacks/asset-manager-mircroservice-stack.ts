@@ -77,6 +77,26 @@ export class AssetManagerMircroserviceStack extends Stack {
       }
     );
 
+    const lambdaGetAssets = new aws_lambda_nodejs.NodejsFunction(
+      this,
+      `get-assets-${props.stage}`,
+      {
+        functionName: `get-assets-${props.stage}`,
+        runtime: Runtime.NODEJS_14_X,
+        entry: path.join(__dirname, '../handlers/get-assets/get-assets.ts'),
+        memorySize: 128,
+        timeout: Duration.seconds(10),
+        environment: {
+          BUCKET_NAME: bucket.bucketName,
+          LOG_ENABLED: props.logsEnabled ? 'true' : 'false'
+        },
+        logRetention: RetentionDays.ONE_DAY,
+        initialPolicy: [lambdaS3PutObject]
+      }
+    );
+
+    bucket.grantRead(lambdaGetAssets);
+
     const apiGateway = new aws_apigateway.RestApi(
       this,
       `asset-manager-api-${props.stage}`,
@@ -96,5 +116,9 @@ export class AssetManagerMircroserviceStack extends Stack {
         'POST',
         new aws_apigateway.LambdaIntegration(lambdaCreatePresignedUrl)
       );
+
+    apiGateway.root
+      .addResource('get-assets')
+      .addMethod('POST', new aws_apigateway.LambdaIntegration(lambdaGetAssets));
   }
 }
