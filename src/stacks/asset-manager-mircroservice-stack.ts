@@ -90,12 +90,34 @@ export class AssetManagerMircroserviceStack extends Stack {
           BUCKET_NAME: bucket.bucketName,
           LOG_ENABLED: props.logsEnabled ? 'true' : 'false'
         },
-        logRetention: RetentionDays.ONE_DAY,
-        initialPolicy: [lambdaS3PutObject]
+        logRetention: RetentionDays.ONE_DAY
       }
     );
 
     bucket.grantRead(lambdaGetAssets);
+
+    const lambdaCreateDirectory = new aws_lambda_nodejs.NodejsFunction(
+      this,
+      `create-directory-${props.stage}`,
+      {
+        functionName: `create-directory-${props.stage}`,
+        runtime: Runtime.NODEJS_14_X,
+        entry: path.join(
+          __dirname,
+          '../handlers/create-directory/create-directory.ts'
+        ),
+        memorySize: 128,
+        timeout: Duration.seconds(10),
+        environment: {
+          BUCKET_NAME: bucket.bucketName,
+          LOG_ENABLED: props.logsEnabled ? 'true' : 'false'
+        },
+        logRetention: RetentionDays.ONE_DAY
+      }
+    );
+
+    bucket.grantRead(lambdaCreateDirectory);
+    bucket.grantPut(lambdaCreateDirectory);
 
     const apiGateway = new aws_apigateway.RestApi(
       this,
@@ -120,5 +142,12 @@ export class AssetManagerMircroserviceStack extends Stack {
     apiGateway.root
       .addResource('get-assets')
       .addMethod('POST', new aws_apigateway.LambdaIntegration(lambdaGetAssets));
+
+    apiGateway.root
+      .addResource('create-directory')
+      .addMethod(
+        'POST',
+        new aws_apigateway.LambdaIntegration(lambdaCreateDirectory)
+      );
   }
 }

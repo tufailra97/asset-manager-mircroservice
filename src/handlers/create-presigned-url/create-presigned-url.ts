@@ -35,6 +35,7 @@ const createPresignedUrl = async (
     });
 
     return apiResponse(200, {
+      message: 'Presigned url created.',
       data
     });
   } catch (error) {

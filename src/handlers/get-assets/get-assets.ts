@@ -32,14 +32,11 @@ const getAssets = async (
       .promise();
 
     if (!dirs.Contents || !dirs.CommonPrefixes?.length) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          files: [],
-          folders: [],
-          currentKey: key
-        })
-      };
+      return apiResponse(200, {
+        files: [],
+        folders: [],
+        currentKey: key
+      });
     }
     const files = dirs.Contents.map((dir) => {
       const folderName = dir.Key?.replace(key || '', '');
@@ -57,6 +54,7 @@ const getAssets = async (
     });
 
     return apiResponse(200, {
+      message: 'Assets retrieved.',
       files,
       totalFiles: files.length,
       folders,
