@@ -23,9 +23,9 @@ const getAssets = async (
     });
 
     const dirs = await s3Service
-      .listObjects({
+      .listObjectsV2({
         Bucket: stackEnvVariables.BUCKET_NAME,
-        Prefix: key,
+        Prefix: `${key}/`,
         MaxKeys: 1000,
         Delimiter: '/'
       })
@@ -38,19 +38,21 @@ const getAssets = async (
         currentKey: key
       });
     }
+
     const files = dirs.Contents.map((dir) => {
-      const folderName = dir.Key?.replace(key || '', '');
+      const name = key !== '/' ? dir.Key?.replace(key || '', '') : dir.Key;
 
       return {
-        folderName,
+        name: name,
         size: dir.Size
       };
     });
 
     const folders = dirs.CommonPrefixes.map((dir) => {
-      const folderName = dir.Prefix?.replace(key || '', '');
+      const name =
+        key !== '/' ? dir.Prefix?.replace(key || '', '') : dir.Prefix;
 
-      return folderName;
+      return name;
     });
 
     return apiResponse(200, {
@@ -61,10 +63,11 @@ const getAssets = async (
       totalFolders: folders.length,
       currentFolder: key
     });
-  } catch (error) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     logger.error({
       message: 'Error getting assets.',
-      error
+      error: error.message
     });
 
     return apiResponse(500, {

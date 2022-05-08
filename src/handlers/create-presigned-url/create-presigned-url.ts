@@ -38,10 +38,12 @@ const createPresignedUrl = async (
       message: 'Presigned url created.',
       data
     });
-  } catch (error) {
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
     logger.error({
       message: 'Error creating presigned url.',
-      error
+      error: error.message
     });
     return apiResponse(500, {
       message: 'Internal server error.'
